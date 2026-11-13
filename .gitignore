@@ -1,0 +1,16 @@
+node_modules/
+dist/
+frontend/dist/
+frontend/node_modules/
+backend/.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+*.pyc
+.env
+.env.local
+*.tsbuildinfo
+.DS_Store
+.vite/
+agent-tools/
+assets/
