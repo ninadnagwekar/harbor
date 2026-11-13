@@ -1,0 +1,8 @@
+{
+  "name": "harbor",
+  "private": true,
+  "scripts": {
+    "build": "pip3 install -r backend/requirements.txt && npm ci --prefix frontend && npm run build --prefix frontend",
+    "start": "bash start.sh"
+  }
+}

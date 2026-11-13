@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: harbor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: harbor
+    ports:
+      - "5432:5432"
+    volumes:
+      - harbor-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U harbor -d harbor"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://harbor:${POSTGRES_PASSWORD}@db:5432/harbor
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      APP_BASE_URL: ${APP_BASE_URL:-http://127.0.0.1:8080}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    ports:
+      - "8080:8080"
+
+volumes:
+  harbor-pg:
