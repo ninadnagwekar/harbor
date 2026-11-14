@@ -98,7 +98,7 @@ export function TaskDrawer({ task, onClose }: { task: Task | null; onClose: () =
     <Sheet open={Boolean(task)} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-xl!">
         {draft ? (
-          <div className="grid gap-5 pb-8">
+          <div className="grid gap-5 pb-8" style={{ padding: "15px 20px" }}>
             <SheetHeader className="pr-8">
               <p className="text-xs text-muted-foreground">{draft.project_name}</p>
               <SheetTitle className="sr-only">Task details</SheetTitle>
