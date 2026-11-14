@@ -3,12 +3,9 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
-from .config import get_settings
 from .database import get_db
 from .models import User
 from .security import decode_access_token, read_session_token
-
-_board_ready = False
 
 
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
@@ -25,13 +22,6 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     user = db.get(User, user_id)
     if user is None or user.status != "active":
         raise HTTPException(status_code=401, detail="Sign in to continue.")
-    global _board_ready
-    if not _board_ready and not get_settings().testing:
-        from .import_board import import_gmg_board
-
-        result = import_gmg_board(db)
-        if result.get("imported") or result.get("reason") in {"already-loaded", "missing-file"}:
-            _board_ready = True
     return user
 
 

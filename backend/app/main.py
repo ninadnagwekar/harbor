@@ -10,10 +10,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from .accounts import ensure_workspace_accounts
 from .config import get_settings
-from .database import Base, SessionLocal, engine, get_db
-from .import_board import import_gmg_board
+from .database import Base, engine, get_db
 from .deps import require_admin
 from .models import User
 from .routers import auth, collab, dashboard, projects, tasks, team, testcases
@@ -73,13 +71,6 @@ async def lifespan(_app: FastAPI):
                 "DELETE FROM activity_logs WHERE actor_id IN (SELECT id FROM users WHERE status <> 'active')"
             )
         )
-    if not get_settings().testing:
-        db = SessionLocal()
-        try:
-            ensure_workspace_accounts(db)
-            import_gmg_board(db)
-        finally:
-            db.close()
     yield
 
 
