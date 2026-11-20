@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     upload_max_bytes: int = 5 * 1024 * 1024
     testing: bool = False
     static_dir: str = ""
+    harbor_seed_passwords: str = ""
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -19,16 +19,19 @@ PLACEHOLDER_ADMIN = "asha@harbor.example"
 # email, name, role, title
 ACCOUNTS = (
     ("ninad.nagwekar@powerweave.com", "Ninad Nagwekar", "admin", "Admin"),
-    ("abhimanyu.patil@powerweave.com", "Abhimanyu Patil", "member", "Jr. Developer"),
-    ("chandrakant.singh@powerweave.com", "Chandrakant Singh", "member", "Sr. Developer"),
+    ("abhimanyu.patil@powerweave.com", "Abhimanyu Patil", "member", "Jr. Backend Developer"),
+    ("chandrakant.singh@powerweave.com", "Chandrakant Singh", "member", "Sr. Backend Developer"),
     ("pallavi.joshi@powerweave.com", "Pallavi Joshi", "member", "QA"),
-    ("saket.yadav@powerweave.com", "Saket Yadav", "member", "Sr. Developer"),
+    ("saket.yadav@powerweave.com", "Saket Yadav", "member", "Sr. Backend Developer"),
 )
 
 
 def seed_passwords() -> dict[str, str]:
+    from .config import get_settings
+
     found: dict[str, str] = {}
-    for line in os.environ.get("HARBOR_SEED_PASSWORDS", "").splitlines():
+    raw = os.environ.get("HARBOR_SEED_PASSWORDS", "") or get_settings().harbor_seed_passwords
+    for line in raw.splitlines():
         if "=" not in line or line.strip().startswith("#"):
             continue
         email, password = line.split("=", 1)
