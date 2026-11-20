@@ -7,6 +7,16 @@ from app.services import utcnow
 from tests.conftest import HDR, auth
 
 
+def test_seed_passwords_accept_one_line(monkeypatch):
+    monkeypatch.setenv("HARBOR_SEED_PASSWORDS", "ada@harbor.example=harbor123;mina@harbor.example=harbor456")
+    from app.accounts import seed_passwords
+
+    assert seed_passwords() == {
+        "ada@harbor.example": "harbor123",
+        "mina@harbor.example": "harbor456",
+    }
+
+
 def test_services_ai_automation_team(client, monkeypatch):
     monkeypatch.setattr(
         "app.accounts.seed_passwords",

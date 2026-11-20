@@ -28,15 +28,28 @@ ACCOUNTS = (
 )
 
 
+def _seed_pieces(raw: str) -> list[str]:
+    pieces: list[str] = []
+    for line in raw.replace("\\n", "\n").splitlines():
+        line = line.strip().strip('"').strip("'")
+        if not line or line.startswith("#"):
+            continue
+        for piece in line.split(";"):
+            piece = piece.strip().strip('"').strip("'")
+            if piece and not piece.startswith("#"):
+                pieces.append(piece)
+    return pieces
+
+
 def seed_passwords() -> dict[str, str]:
     from .config import get_settings
 
     found: dict[str, str] = {}
     raw = os.environ.get("HARBOR_SEED_PASSWORDS", "") or get_settings().harbor_seed_passwords
-    for line in raw.splitlines():
-        if "=" not in line or line.strip().startswith("#"):
+    for piece in _seed_pieces(raw):
+        if "=" not in piece:
             continue
-        email, password = line.split("=", 1)
+        email, password = piece.split("=", 1)
         email = email.strip().lower()
         password = password.strip()
         if email and password:

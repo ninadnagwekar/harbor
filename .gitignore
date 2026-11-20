@@ -9,6 +9,7 @@ __pycache__/
 *.pyc
 .env
 .env.local
+seed-passwords.txt
 *.tsbuildinfo
 .DS_Store
 .vite/

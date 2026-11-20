@@ -31,6 +31,7 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
+      HARBOR_SEED_PASSWORDS: ${HARBOR_SEED_PASSWORDS:-}
     ports:
       - "8080:8080"
 

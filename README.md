@@ -14,6 +14,16 @@ powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
 
 The script writes a local `.env` and opens Harbor at http://127.0.0.1:8080. Create the admin account on the first visit. `http://127.0.0.1:4178` is only the cloud dev server, not the copy on your PC.
 
+To update a copy that is already on the PC:
+
+```powershell
+cd D:\Harbor
+git pull
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
+```
+
+The Powerweave accounts are not stored in git. Put one `email=password` pair per line in `D:\Harbor\seed-passwords.txt`, then run the script again. Harbor creates any missing accounts and adds Ninad Nagwekar, Abhimanyu Patil, Chandrakant Singh, Pallavi Joshi, and Saket Yadav to Services AI Automation. `seed-passwords.txt` stays on that PC.
+
 ## Run it locally
 
 You need Python 3.12, Node.js 22, and PostgreSQL 16.
