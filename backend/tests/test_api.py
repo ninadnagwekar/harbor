@@ -7,6 +7,44 @@ from app.services import utcnow
 from tests.conftest import HDR, auth
 
 
+def test_services_ai_automation_team(client, monkeypatch):
+    monkeypatch.setattr(
+        "app.accounts.seed_passwords",
+        lambda: {
+            "ninad.nagwekar@powerweave.com": "harbor123",
+            "abhimanyu.patil@powerweave.com": "harbor123",
+            "chandrakant.singh@powerweave.com": "harbor123",
+            "pallavi.joshi@powerweave.com": "harbor123",
+            "saket.yadav@powerweave.com": "harbor123",
+        },
+    )
+    from app.accounts import ensure_workspace_accounts
+
+    db = SessionLocal()
+    try:
+        ensure_workspace_accounts(db)
+    finally:
+        db.close()
+    login = client.post(
+        "/api/auth/login",
+        json={"email": "abhimanyu.patil@powerweave.com", "password": "harbor123"},
+        headers=HDR,
+    )
+    assert login.status_code == 200, login.text
+    team = client.get("/api/team")
+    assert team.status_code == 200, team.text
+    by_email = {row["user"]["email"]: row for row in team.json()}
+    for email in (
+        "ninad.nagwekar@powerweave.com",
+        "abhimanyu.patil@powerweave.com",
+        "chandrakant.singh@powerweave.com",
+        "pallavi.joshi@powerweave.com",
+        "saket.yadav@powerweave.com",
+    ):
+        assert "Services AI Automation" in by_email[email]["teams"]
+        assert any(project["name"] == "Services AI Automation" for project in by_email[email]["projects"])
+
+
 def test_setup_is_once(client):
     auth(client)
     again = client.post(

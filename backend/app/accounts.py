@@ -10,9 +10,11 @@ import os
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .models import Project, User
+from .models import Project, Team, TeamMembership, User
 from .security import hash_password
-from .services import ensure_membership
+from .services import ensure_membership, utcnow
+
+SERVICES_TEAM = "Services AI Automation"
 
 PLACEHOLDER_ADMIN = "asha@harbor.example"
 
@@ -97,8 +99,43 @@ def ensure_workspace_accounts(db: Session) -> None:
 
     emails = [row[0] for row in ACCOUNTS]
     people = list(db.scalars(select(User).where(User.email.in_(emails))).all())
+    if admin is not None:
+        _ensure_services_team(db, admin, [person for person in people if person.id != admin.id])
+        db.flush()
     projects = list(db.scalars(select(Project).where(Project.deleted_at.is_(None))).all())
     for project in projects:
         for person in people:
             ensure_membership(db, project.id, person.id)
     db.commit()
+
+
+def _ensure_services_team(db: Session, lead: User, members: list[User]) -> None:
+    team = db.scalar(select(Team).where(Team.name == SERVICES_TEAM))
+    if team is None:
+        team = Team(name=SERVICES_TEAM, lead_id=lead.id)
+        db.add(team)
+        db.flush()
+    elif team.lead_id != lead.id:
+        team.lead_id = lead.id
+    for person in [lead, *members]:
+        already = db.scalar(
+            select(TeamMembership.id).where(TeamMembership.team_id == team.id, TeamMembership.user_id == person.id)
+        )
+        if already is None:
+            db.add(TeamMembership(team_id=team.id, user_id=person.id))
+
+    project = db.scalar(select(Project).where(Project.name == SERVICES_TEAM, Project.deleted_at.is_(None)))
+    if project is None:
+        project = Project(
+            name=SERVICES_TEAM,
+            description="Ninad Nagwekar's Services AI Automation team.",
+            owner_id=lead.id,
+            status="in_progress",
+            priority="medium",
+            start_date=utcnow().date(),
+            tags=["services-ai-automation"],
+        )
+        db.add(project)
+        db.flush()
+    for person in [lead, *members]:
+        ensure_membership(db, project.id, person.id)

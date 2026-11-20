@@ -132,6 +132,7 @@ export type Notice = {
 
 export type TeamMember = {
   user: User
+  teams: string[]
   projects: { id: string; name: string; status: string }[]
   open_tasks: number
   done_tasks: number

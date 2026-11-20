@@ -364,6 +364,7 @@ class NotificationList(BaseModel):
 
 class TeamMember(BaseModel):
     user: UserOut
+    teams: list[str] = []
     projects: list[dict]
     open_tasks: int
     done_tasks: int

@@ -8,13 +8,24 @@ from sqlalchemy.orm import Session
 from ..config import get_settings
 from ..database import get_db
 from ..deps import get_current_user, require_admin
-from ..models import ActivityLog, Invitation, Project, ProjectMember, Task, User
+from ..models import ActivityLog, Invitation, Project, ProjectMember, Task, Team, TeamMembership, User
 from ..routers.auth import create_reset_link
 from ..schemas import InvitationOut, InviteIn, LinkOut, MemberUpdate, TeamMember, UserOut
 from ..security import hash_token, new_token, normalize_email
 from ..services import accessible_project_ids, public_base, send_email, smtp_configured, utcnow
 
 router = APIRouter(prefix="/api/team", tags=["team"])
+
+
+def _teams_for(db: Session, person: User) -> list[str]:
+    return list(
+        db.scalars(
+            select(Team.name)
+            .join(TeamMembership, TeamMembership.team_id == Team.id)
+            .where(TeamMembership.user_id == person.id)
+            .order_by(Team.name)
+        ).all()
+    )
 
 
 def _projects_for(db: Session, viewer: User, person: User) -> list[dict]:
@@ -54,6 +65,7 @@ def list_team(viewer: User = Depends(get_current_user), db: Session = Depends(ge
         result.append(
             TeamMember(
                 user=UserOut.model_validate(person),
+                teams=_teams_for(db, person),
                 projects=_projects_for(db, viewer, person),
                 open_tasks=open_count,
                 done_tasks=done_count,

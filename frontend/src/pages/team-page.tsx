@@ -81,6 +81,7 @@ export function TeamPage() {
           <thead className="border-b text-left text-xs text-muted-foreground">
             <tr>
               <th className="px-3 py-2 font-medium">Person</th>
+              <th className="px-3 py-2 font-medium">Team</th>
               <th className="px-3 py-2 font-medium">Projects</th>
               <th className="px-3 py-2 font-medium">Open</th>
               <th className="px-3 py-2 font-medium">Done</th>
@@ -103,6 +104,7 @@ export function TeamPage() {
                     </div>
                   </div>
                 </td>
+                <td className="px-3 py-2 text-muted-foreground">{member.teams.join(", ") || "—"}</td>
                 <td className="px-3 py-2 text-muted-foreground">{member.projects.map((project) => project.name).join(", ") || "—"}</td>
                 <td className="px-3 py-2 tabular-nums">{member.open_tasks}</td>
                 <td className="px-3 py-2 tabular-nums">{member.done_tasks}</td>
